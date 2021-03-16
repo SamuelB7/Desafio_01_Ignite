@@ -18,7 +18,7 @@ function checksExistsUserAccount(request, response, next) {
   if(userExists) {
     return response.json({error: "User already exists!"})
   }
-
+  request.user = userExists
   return next()
 }
 
@@ -32,7 +32,7 @@ app.post('/users', checksExistsUserAccount, (request, response) => {
     id,
     todo: []
   })
-  console.log(users)
+  //console.log(users)
   return response.json("User created!")
 });
 
@@ -47,12 +47,37 @@ app.get('/todos', (request, response) => {
 
 app.post('/todos', (request, response) => {
   const {username} = request.headers
-  const user = users.find(user => user.username === username)
+  const {title, deadline} = request.body
 
+  const user = users.find(user => user.username === username)
+  if(!user) return response.json({error: "User not found!"})
+
+  const id = uuidv4()
+
+  user.todo.push({
+    id,
+    title,
+    done: false,
+    deadline: new Date(deadline),
+    created_at: new Date()
+  })
+
+  return response.json("todo created!")
 });
 
 app.put('/todos/:id', (request, response) => {
-  // Complete aqui
+  const {username} = request.headers
+  const {id} = request.params
+  const {title, deadline} = request.body
+
+  const user = users.find(user => user.username === username)
+  if(!user) return response.json({error: "User not found!"})
+
+  const todo = user.todo.find(todo => todo.id === id)
+  todo.title = title
+  todo.deadline = new Date(deadline)
+
+  return response.json("todo updated!")
 });
 
 app.patch('/todos/:id/done', (request, response) => {
