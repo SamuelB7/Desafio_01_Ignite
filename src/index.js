@@ -100,7 +100,7 @@ app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   if(!todo) return response.status(404).json({error:"Todo does not exists"})
   user.todos.splice(todo, 1)
   
-  return response.status(204)
+  return response.sendStatus(204)
 });
 
 module.exports = app;
